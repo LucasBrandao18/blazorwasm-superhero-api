@@ -1,22 +1,5 @@
 # BlazorWasmSuperHeroApi
 
-Prática das páginas 8 a 37 do material **13.net_blazor_vscode.pdf**, implementada em Blazor WebAssembly com .NET 10.
-
-## O que foi solicitado
-
-| Páginas | Atividade e implementação |
-| --- | --- |
-| 8 e 9 | Criar o projeto Blazor WebAssembly com o nome BlazorWasmSuperHeroApi. Os arquivos estão diretamente na raiz solicitada. |
-| 10 e 11 | Obter um token de acesso à SuperHero API. Esta versão usa o token de exemplo do material, validado durante a implementação. |
-| 12 a 22 | Criar as classes que representam os dados retornados, incluindo biografia, aparência, atributos, trabalho, conexões e imagem. |
-| 23 a 25 | Implementar a busca na Home, com campo de nome, botão Pesquisar, carregamento, resultados e mensagens de erro. |
-| 26 a 33 | Executar o projeto e diagnosticar falhas de requisição no navegador. |
-| 34 a 37 | Usar a URL corrigida com www e api.php e exibir os resultados em cartões. |
-
-Os cartões apresentam imagem, nome, nome completo, editora, primeira aparição e os seis atributos de Powerstats. Inteligência, força, velocidade e combate correspondem aos campos mostrados no exemplo. Resistência e poder completam os atributos do modelo. A busca funciona pelo botão e pela tecla Enter.
-
-A criação e publicação no GitHub e a postagem no Google Classroom ficam para entrega manual.
-
 ## Como executar
 
 É necessário ter o SDK do .NET 10 e acesso à internet para restaurar os pacotes, consultar a API e carregar as imagens.
