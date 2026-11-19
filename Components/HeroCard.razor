@@ -1,0 +1,56 @@
+@using BlazorWasmSuperHeroApi.Models
+@inject BlazorWasmSuperHeroApi.Services.SuperHeroService Api
+
+<article class="hero-card">
+    <div class="portrait">
+        @if (!imageFailed && ImageUrl is not null)
+        {
+            <img @key="ImageUrl" src="@ImageUrl" alt="@Hero.Name" referrerpolicy="no-referrer" @onerror="HandleImageError" />
+        }
+        else
+        {
+            <span>Imagem indisponível</span>
+        }
+    </div>
+    <div class="card-body">
+        <h2>@Text(Hero.Name) <span>(@Text(Hero.Biography?.FullName))</span></h2>
+        <p class="publisher">Editora · @Text(Hero.Biography?.Publisher)</p>
+        <h3>Powerstats</h3>
+        <dl>
+            <dt>Inteligência</dt><dd>@Text(Hero.Powerstats?.Intelligence)</dd>
+            <dt>Força</dt><dd>@Text(Hero.Powerstats?.Strength)</dd>
+            <dt>Velocidade</dt><dd>@Text(Hero.Powerstats?.Speed)</dd>
+            <dt>Resistência</dt><dd>@Text(Hero.Powerstats?.Durability)</dd>
+            <dt>Poder</dt><dd>@Text(Hero.Powerstats?.Power)</dd>
+            <dt>Combate</dt><dd>@Text(Hero.Powerstats?.Combat)</dd>
+        </dl>
+        <h3>Primeira aparição</h3>
+        <p>@Text(Hero.Biography?.FirstAppearance)</p>
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public SuperHero Hero { get; set; } = default!;
+    private bool imageFailed;
+    private bool triedFallback;
+    private string? fallbackImage;
+    private string? ImageUrl => fallbackImage ?? OriginalImageUrl;
+    private string? OriginalImageUrl => Uri.TryCreate(Hero.Image?.Url, UriKind.Absolute, out var uri)
+        && (uri.Scheme == "https" || uri.Scheme == "http") ? uri.AbsoluteUri : null;
+
+    private async Task HandleImageError()
+    {
+        if (triedFallback)
+        {
+            imageFailed = true;
+            return;
+        }
+
+        triedFallback = true;
+        fallbackImage = await Api.FindFallbackImageAsync(Hero);
+        imageFailed = fallbackImage is null;
+    }
+
+    private static string Text(string? value) =>
+        string.IsNullOrWhiteSpace(value) || value is "-" or "null" ? "Não informado" : value;
+}

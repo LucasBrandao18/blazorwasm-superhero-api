@@ -1,0 +1,99 @@
+@page "/"
+@using BlazorWasmSuperHeroApi.Models
+@using BlazorWasmSuperHeroApi.Components
+@inject BlazorWasmSuperHeroApi.Services.SuperHeroService Api
+
+<PageTitle>SuperHero Search</PageTitle>
+
+<header class="topbar"><div class="wrap">BlazorWasmSuperHeroApi</div></header>
+<main class="wrap">
+    <section class="search-panel">
+        <h1>SuperHero Search</h1>
+        <p>Busque heróis e vilões pelo nome.</p>
+        <form @onsubmit="SearchHeroes" @onsubmit:preventDefault>
+            <label for="hero-name">Nome do personagem</label>
+            <div class="search-row">
+                <input id="hero-name" type="search" placeholder="Ex. Batman, Ironman"
+                       @bind="searchTerm" @bind:event="oninput" disabled="@isLoading" />
+                <button type="submit" disabled="@(isLoading || string.IsNullOrWhiteSpace(searchTerm))">
+                    @(isLoading ? "Pesquisando…" : "Pesquisar")
+                </button>
+            </div>
+        </form>
+    </section>
+
+    @if (isLoading)
+    {
+        <p class="message" role="status">Consultando os personagens…</p>
+    }
+    else if (errorMessage is not null)
+    {
+        <div class="message error" role="alert">
+            <p>@errorMessage</p>
+            <button @onclick="SearchHeroes">Tentar novamente</button>
+        </div>
+    }
+    else if (heroes.Count > 0)
+    {
+        <p class="result-count" role="status">@heroes.Count resultado(s) para “@submittedTerm”</p>
+        <section class="hero-grid" aria-label="Personagens encontrados">
+            @foreach (var hero in heroes)
+            {
+                <HeroCard @key="hero" Hero="hero" />
+            }
+        </section>
+    }
+    else if (hasSearched)
+    {
+        <p class="message" role="status">Nenhum personagem encontrado para “@submittedTerm”.</p>
+    }
+</main>
+
+@code {
+    private string searchTerm = "";
+    private string submittedTerm = "";
+    private List<SuperHero> heroes = [];
+    private bool isLoading;
+    private bool hasSearched;
+    private string? errorMessage;
+
+    private async Task SearchHeroes()
+    {
+        if (isLoading || string.IsNullOrWhiteSpace(searchTerm))
+        {
+            return;
+        }
+
+        submittedTerm = searchTerm.Trim();
+        isLoading = true;
+        hasSearched = true;
+        errorMessage = null;
+        heroes = [];
+
+        try
+        {
+            heroes = await Api.SearchAsync(submittedTerm);
+        }
+        catch (HttpRequestException)
+        {
+            errorMessage = "Não foi possível conectar à SuperHero API. Verifique a conexão e tente novamente.";
+        }
+        catch (OperationCanceledException)
+        {
+            errorMessage = "A consulta demorou mais que o esperado. Tente novamente.";
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            errorMessage = "A API retornou uma resposta inválida. Tente novamente mais tarde.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            errorMessage = ex.Message;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}
+
